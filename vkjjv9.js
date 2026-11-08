@@ -1,10 +1,11 @@
-// elizzi-vkjj.js
+// vkjjv9.js
 // Модуль опенинга VKJJv9 для Elizzi Client
 
 (function() {
     'use strict';
 
     const MS_PER_TICK = 56;
+    let isEnabled = false; // Флаг, включен ли опенинг через тумблер
 
     const vkjjSteps = [
         { cycle: 1, exactTick: 7.0, percent: 20.8008 },
@@ -94,8 +95,15 @@
                     ah.nU[aE.fJ] > 0 &&
                     ah.hb[aE.fJ] >= 12
                 );
-                if (realStart && !wasMatchRunning) startSequence();
-                else if (!realStart && wasMatchRunning) stopSequence();
+                
+                // Проверяем, включен ли опенинг через тумблер
+                if (realStart && !wasMatchRunning && isEnabled) { 
+                    startSequence();
+                }
+                else if (!realStart && wasMatchRunning) {
+                    stopSequence();
+                }
+                
                 wasMatchRunning = realStart;
             }
         } catch (e) {}
@@ -112,10 +120,15 @@
 
     // Экспорт в глобальную область для UI
     window.VKJJOpening = {
-        start: startSequence,
-        stop: stopSequence,
+        enable: function() { 
+            isEnabled = true; 
+        },
+        disable: function() { 
+            isEnabled = false; 
+            stopSequence(); 
+        },
         sendAttack: sendAttack,
-        get state() { return { isRunning, wasMatchRunning, startTime, timers: timers.length }; }
+        get state() { return { isRunning, wasMatchRunning, isEnabled, startTime, timers: timers.length }; }
     };
 
     waitForGame();
