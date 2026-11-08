@@ -317,15 +317,20 @@ function openElizziMenu() {
     };
 
     // VKJJ
-    if (window.VKJJOpening && window.VKJJOpening.state.isRunning) vkjjToggle.checked = true;
+    // Синхронизируем тумблер, если опенинг уже был включен до открытия меню
+    if (window.VKJJOpening && window.VKJJOpening.state.isEnabled) {
+        vkjjToggle.checked = true;
+    }
+
     vkjjToggle.onchange = (e) => {
         if (!window.VKJJOpening) { logMsg("VKJJ module not loaded!", 'error'); e.target.checked = false; return; }
+        
         if (e.target.checked) {
-            window.VKJJOpening.start();
-            logMsg("VKJJ Opening started.", 'info');
+            window.VKJJOpening.enable();
+            logMsg("VKJJ Opening enabled. Waiting for match...", 'info');
         } else {
-            window.VKJJOpening.stop();
-            logMsg("VKJJ Opening stopped.", 'info');
+            window.VKJJOpening.disable();
+            logMsg("VKJJ Opening disabled.", 'info');
         }
     };
 
@@ -357,4 +362,4 @@ function openElizziMenu() {
             setTimeout(() => { e.target.checked = false; }, 1500);
         }
     };
-        }
+}
