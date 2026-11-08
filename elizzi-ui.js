@@ -1,5 +1,5 @@
 // elizzi-ui.js
-// Интерфейс Elizzi Client
+// Интерфейс Elizzi Client (Полная версия с плавающим меню)
 
 function openElizziMenu() {
     if (document.getElementById('elizzi-client-ui')) {
@@ -17,7 +17,7 @@ function openElizziMenu() {
                 width: 450px; max-width: 95vw; z-index: 2147483647;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 color: #fff; user-select: none;
-                touch-action: none; /* Важно для мобилок, чтобы не скроллить страницу при перетаскивании */
+                touch-action: none;
             }
             .elizzi-glass {
                 background: rgba(15, 15, 20, 0.9);
@@ -36,7 +36,7 @@ function openElizziMenu() {
                 display: flex; justify-content: space-between; align-items: center;
                 border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;
                 position: relative; z-index: 1;
-                cursor: grab; /* Курсор для перетаскивания */
+                cursor: grab;
             }
             .elizzi-header:active { cursor: grabbing; }
             
@@ -44,12 +44,11 @@ function openElizziMenu() {
                 font-size: 18px; font-weight: 700;
                 background: linear-gradient(90deg, #a78bfa, #fff);
                 -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-                pointer-events: none; /* Чтобы клики по заголовку не мешали перетаскиванию */
+                pointer-events: none;
             }
             .elizzi-close {
                 cursor: pointer; color: #888; font-size: 20px; line-height: 1;
-                transition: 0.2s;
-                padding: 5px; /* Удобнее нажимать на телефоне */
+                transition: 0.2s; padding: 5px;
             }
             .elizzi-close:hover { color: #f87171; }
             
@@ -116,7 +115,7 @@ function openElizziMenu() {
         document.head.appendChild(style);
     }
 
-    // 2. HTML структура (добавлен id для заголовка)
+    // 2. HTML структура
     const ui = document.createElement('div');
     ui.id = 'elizzi-client-ui';
     ui.innerHTML = `
@@ -126,7 +125,7 @@ function openElizziMenu() {
                 <div class="elizzi-close">✖</div>
             </div>
             
-            <!-- ... весь остальной HTML (генератор, vkjj, ранг, лобби) ... -->
+            <!-- Генератор -->
             <div class="elizzi-input-row">
                 <span class="elizzi-input-label">Accounts to generate:</span>
                 <input type="number" id="elizzi-count" class="elizzi-input" value="10" min="1" max="1000">
@@ -139,6 +138,7 @@ function openElizziMenu() {
                 </label>
             </div>
 
+            <!-- VKJJ Opening -->
             <div class="elizzi-toggle-row">
                 <span class="elizzi-toggle-label">VKJJv9 Opening</span>
                 <label class="elizzi-switch">
@@ -147,11 +147,12 @@ function openElizziMenu() {
                 </label>
             </div>
 
+            <!-- Custom Rank -->
             <div class="elizzi-input-row">
                 <span class="elizzi-input-label">Custom Rank:</span>
                 <select id="elizzi-rank-select" class="elizzi-select">
                     <option value="3">Red (Admin)</option>
-                    <option value="4">Pink (Clan Leader)</option>
+                    <option value="4">Purple (Clan Leader)</option>
                     <option value="5">Green (1v1)</option>
                     <option value="6">Blue (Clan Member)</option>
                     <option value="8">Orange (Battle Royale)</option>
@@ -168,6 +169,7 @@ function openElizziMenu() {
                 </label>
             </div>
 
+            <!-- Join Another Lobby -->
             <div class="elizzi-input-row">
                 <span class="elizzi-input-label">Select Lobby:</span>
                 <select id="elizzi-lobby-select" class="elizzi-select">
@@ -197,81 +199,53 @@ function openElizziMenu() {
     let isDragging = false;
     let startX, startY, initialLeft, initialTop;
 
-    // Функция для получения координат (мышь или палец)
     function getCoords(e) {
-        if (e.touches && e.touches.length > 0) {
-            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        }
+        if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
         return { x: e.clientX, y: e.clientY };
     }
 
     function startDrag(e) {
-        // Игнорируем клик по кнопке закрытия
-        if (e.target.classList.contains('elizzi-close')) return; 
-        
+        if (e.target.classList.contains('elizzi-close')) return;
         isDragging = true;
         const coords = getCoords(e);
         startX = coords.x;
         startY = coords.y;
-        
         const rect = ui.getBoundingClientRect();
         initialLeft = rect.left;
         initialTop = rect.top;
-        
-        // Меняем стиль позиционирования, чтобы можно было двигать
         ui.style.transform = 'none'; 
         ui.style.left = initialLeft + 'px';
         ui.style.top = initialTop + 'px';
-        
-        e.preventDefault(); // Останавливаем стандартное поведение (выделение текста)
+        e.preventDefault();
     }
 
-function onDrag(e) {
-    if (!isDragging) return;
-    const coords = getCoords(e);
-    const dx = coords.x - startX;
-    const dy = coords.y - startY;
-    
-    let newLeft = initialLeft + dx;
-    let newTop = initialTop + dy;
-    
-    // Убираем ограничения, чтобы можно было тащить куда угодно
-    // const maxLeft = window.innerWidth - ui.offsetWidth;
-    // const maxTop = window.innerHeight - ui.offsetHeight;
-    // newLeft = Math.max(0, Math.min(newLeft, maxLeft));
-    // newTop = Math.max(0, Math.min(newTop, maxTop));
-    
-    ui.style.left = newLeft + 'px';
-    ui.style.top = newTop + 'px';
-}
-
-    function endDrag() {
-        isDragging = false;
+    function onDrag(e) {
+        if (!isDragging) return;
+        const coords = getCoords(e);
+        const dx = coords.x - startX;
+        const dy = coords.y - startY;
+        ui.style.left = (initialLeft + dx) + 'px';
+        ui.style.top = (initialTop + dy) + 'px';
     }
 
-    // Навешиваем события для мыши
+    function endDrag() { isDragging = false; }
+
     dragHandle.addEventListener('mousedown', startDrag);
     document.addEventListener('mousemove', onDrag);
     document.addEventListener('mouseup', endDrag);
-
-    // Навешиваем события для тачскрина (телефоны)
     dragHandle.addEventListener('touchstart', startDrag, { passive: false });
     document.addEventListener('touchmove', onDrag, { passive: false });
     document.addEventListener('touchend', endDrag);
 
-    // --- 4. Логика UI (закрытие и т.д.) ---
     ui.querySelector('.elizzi-close').onclick = () => {
         ui.remove();
-        // Отписываемся от событий, чтобы не было утечек памяти
         document.removeEventListener('mousemove', onDrag);
         document.removeEventListener('mouseup', endDrag);
         document.removeEventListener('touchmove', onDrag);
         document.removeEventListener('touchend', endDrag);
     };
 
-    // ... (ОСТАЛЬНОЙ КОД ЛОГИКИ ГЕНЕРАТОРА, VKJJ, RANK, LOBBY ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ) ...
-    // Скопируй сюда блоки с onchange из предыдущего ответа.
-    
+    // --- 4. ЛОГИКА МОДУЛЕЙ ---
     const toggle = document.getElementById('elizzi-gen-toggle');
     const countInput = document.getElementById('elizzi-count');
     const log = document.getElementById('elizzi-log');
@@ -301,5 +275,86 @@ function onDrag(e) {
         URL.revokeObjectURL(url);
     };
 
-    // ... (ВСТАВЬ СЮДА onchange ДЛЯ toggle, vkjjToggle, rankToggle, lobbyToggle ИЗ ПРЕДЫДУЩЕГО КОДА) ...
+    // Генератор
+    toggle.onchange = async (e) => {
+        if (e.target.checked) {
+            let targetCount = parseInt(countInput.value) || 1;
+            window.elizziGenActive = true;
+            log.innerHTML = ''; 
+            logMsg(`Starting generation of ${targetCount} accounts...`, 'info');
+            
+            let generatedAccounts = [];
+            let currentCount = 0;
+
+            while (window.elizziGenActive && currentCount < targetCount) {
+                try {
+                    if (typeof window.elizziGenerateAccount !== 'function') throw new Error("elizzi-gen.js not loaded!");
+                    const result = await window.elizziGenerateAccount();
+                    if (result && result.username) {
+                        generatedAccounts.push(`${result.username}:${result.password}`);
+                        currentCount++;
+                        logMsg(`[${currentCount}/${targetCount}] Generated: ${result.username}`, 'success');
+                        if (generatedAccounts.length % 10 === 0) {
+                            saveToFile(generatedAccounts.join('\n'), `elizzi_accounts_${Date.now()}.txt`);
+                            logMsg(`Saved ${generatedAccounts.length} accounts to file.`, 'info');
+                        }
+                    }
+                } catch (err) {
+                    logMsg(`Error: ${err.message}`, 'error');
+                    await new Promise(r => setTimeout(r, 1000));
+                }
             }
+            if (generatedAccounts.length > 0 && generatedAccounts.length % 10 !== 0) {
+                saveToFile(generatedAccounts.join('\n'), `elizzi_accounts_final_${Date.now()}.txt`);
+            }
+            logMsg(`Finished! Total generated: ${currentCount}`, 'info');
+            toggle.checked = false;
+            window.elizziGenActive = false;
+        } else {
+            window.elizziGenActive = false;
+            logMsg("Generator stopped manually.", 'info');
+        }
+    };
+
+    // VKJJ
+    if (window.VKJJOpening && window.VKJJOpening.state.isRunning) vkjjToggle.checked = true;
+    vkjjToggle.onchange = (e) => {
+        if (!window.VKJJOpening) { logMsg("VKJJ module not loaded!", 'error'); e.target.checked = false; return; }
+        if (e.target.checked) {
+            window.VKJJOpening.start();
+            logMsg("VKJJ Opening started.", 'info');
+        } else {
+            window.VKJJOpening.stop();
+            logMsg("VKJJ Opening stopped.", 'info');
+        }
+    };
+
+    // Rank
+    rankToggle.onchange = (e) => {
+        if (!window.ElizziRank) { logMsg("Rank module not loaded!", 'error'); e.target.checked = false; return; }
+        if (e.target.checked) {
+            const selectedRank = parseInt(rankSelect.value);
+            window.ElizziRank.setRank(selectedRank);
+            logMsg(`Setting rank: ${window.ElizziRank.getRankName(selectedRank)}...`, 'info');
+        } else {
+            window.ElizziRank.stop();
+            logMsg("Rank setter stopped.", 'info');
+        }
+    };
+
+    // Lobby
+    lobbyToggle.onchange = (e) => {
+        if (!window.ElizziLobby) { logMsg("Lobby module not loaded!", 'error'); e.target.checked = false; return; }
+        if (e.target.checked) {
+            const selectedLobby = parseInt(lobbySelect.value);
+            const success = window.ElizziLobby.connect(selectedLobby);
+            if (success) {
+                logMsg(`Connecting to Lobby ${selectedLobby}...`, 'info');
+            } else {
+                logMsg(`Failed to connect to Lobby ${selectedLobby}`, 'error');
+                e.target.checked = false;
+            }
+            setTimeout(() => { e.target.checked = false; }, 1500);
+        }
+    };
+        }
