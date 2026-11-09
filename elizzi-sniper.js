@@ -159,7 +159,7 @@
         ui.innerHTML = `
             <div class="sniper-glass">
                 <div class="sniper-header" id="sniper-drag-handle">
-                    <div class="sniper-title">🎯 Sniper v3.2</div>
+                    <div class="sniper-title">🟨 Sniper v3.2</div>
                     <div class="sniper-close">✖</div>
                 </div>
                 
