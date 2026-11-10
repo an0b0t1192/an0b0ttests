@@ -1,6 +1,6 @@
 // elizzi-rank.js
 // Модуль смены визуального ранга для Elizzi Client
-// Адаптирован под новую версию игры (beautified (5).html)
+// Адаптирован под новую версию игры (2.17.4)
 
 (function() {
     'use strict';
@@ -25,21 +25,14 @@
         11: "Black (Zombie Rank)"
     };
 
-    // ==========================================
-    // ПОЛУЧЕНИЕ ИГРОКА
-    // ==========================================
-    // ВАЖНО: bq существует ТОЛЬКО в лобби (мультиплеер).
-    // В одиночной игре и в меню bq === undefined.
     function getPlayer() {
         const bq = window.bq;
         if (!bq) return null;
 
-        // Свой аккаунт
         if (bq.aGi && typeof bq.aGi === 'object' && 'xB' in bq.aGi) {
             return bq.aGi;
         }
 
-        // Массив игроков
         if (bq.x1 && bq.x1.wM && bq.x1.wM.length > 0) {
             const myUe = bq.aGh;
             if (myUe) {
@@ -59,9 +52,6 @@
         return null;
     }
 
-    // ==========================================
-    // ПРИМЕНЕНИЕ РАНГА
-    // ==========================================
     function applyRank(rankValue) {
         try {
             const player = getPlayer();
@@ -72,21 +62,18 @@
 
             const bq = window.bq;
 
-            // Обновляем таблицу игроков (bq.tu = aGw)
             try {
                 if (bq.tu && typeof bq.tu.aHA === 'function') {
                     bq.tu.aHA(player.ur);
                 }
             } catch (e) {}
 
-            // Обновляем тултип (bq.wz = aGt)
             try {
                 if (bq.wz && typeof bq.wz.aIg === 'function') {
                     bq.wz.aIg();
                 }
             } catch (e) {}
 
-            // Перерисовка
             try {
                 if (typeof bi !== 'undefined') {
                     bi.du = true;
@@ -108,9 +95,7 @@
                 stopPolling();
                 return;
             }
-            if (applyRank(targetRank)) {
-                stopPolling();
-            }
+            applyRank(targetRank);
         }, POLL_MS);
     }
 
